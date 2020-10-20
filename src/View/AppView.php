@@ -36,5 +36,9 @@ class AppView extends View
      */
     public function initialize()
     {
+
+        //dd($user);
+        //$test = "test";
+        //$this->set(compact('test'));
     }
 }

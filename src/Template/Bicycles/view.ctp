@@ -53,6 +53,22 @@
             <th scope="row"><?= __('Weekend Price') ?></th>
             <td><?= $this->Number->format($bicycle->weekend_price) ?></td>
         </tr>
-
+    </table>
+    <h3>Availibility</h3>
+    <table class="vertical-table">
+        <tr>
+            <?php foreach ($week_ahead as $day): ?>
+                <th><?= h($day) ?></th>
+            <?php endforeach; ?>
+        </tr>
+        <tr>
+            <?php foreach ($bookings_to_view as $booking): ?>
+                <?php if($booking != 'BOOKED'): ?>
+                <th> <?= $this->Form->postLink(__('Book'), ['action' => 'book',$bicycle->id, $booking], ['confirm' => __('Are you sure you want to book {0} on {1}?',$bicycle->title,$booking)]) ?> </th>
+                <?php elseif($booking == 'BOOKED'):  ?>
+                <th><?php echo $booking ?> </th>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </tr>
     </table>
 </div>

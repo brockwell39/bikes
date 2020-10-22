@@ -2,6 +2,10 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\I18n\Time;
+use Cake\ORM\TableRegistry;
+use App\Model\Entity\Booking;
+use App\Model\Table\Bookings;
 
 /**
  * Bicycles Controller
@@ -56,6 +60,12 @@ class BicyclesController extends AppController
      */
     public function view($id = null)
     {
+        $week_ahead = $this->Bicycles->getWeekAhead();
+        $this->set(compact('week_ahead'));
+        $bookings_to_view = $this->Bicycles->getAvailibility($id);
+        $this->set(compact('bookings_to_view'));
+
+
         $bicycle = $this->Bicycles->get($id, [
             'contain' => ['Users'],
         ]);
@@ -85,6 +95,25 @@ class BicyclesController extends AppController
         }
         $users = $this->Bicycles->Users->find('list', ['limit' => 200]);
         $this->set(compact('bicycle', 'users'));
+    }
+    public function book($id = null,$day){
+        $user = $this->Auth->user('id');
+        $bookingsTable = TableRegistry::getTableLocator()->get('Bookings');
+        $booking = new Booking;
+        $booking->user_id = $user;
+        $booking->bike_id = $id;
+        $booking->created = Time::now('Europe/London');
+        $date = date("Y-m-d H:i:s", strtotime($day));
+        $booking->booking_start = $date;
+        $booking->booking_end = $date;
+        $booking->status = 'BOOKED';
+        //dd($booking);
+        if($bookingsTable->save($booking)){
+            $this->Flash->success(__('The booking has been saved.'));
+            return $this->redirect(['action' => 'view',$id]);
+        }
+        $this->Flash->error(__('The booking could not be saved. Please, try again.'));
+        return $this->redirect(['action' => 'view',$id]);
     }
 
     /**

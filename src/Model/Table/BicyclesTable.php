@@ -1,9 +1,11 @@
 <?php
 namespace App\Model\Table;
 
+use Cake\I18n\Time;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
+use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 
 /**
@@ -109,6 +111,42 @@ class BicyclesTable extends Table
             ->notEmptyString('weekend_price');
 
         return $validator;
+    }
+
+    /**
+     * @return bool
+     */
+
+    public function getWeekAhead(){
+        $now = Time::now('Europe/London')->i18nFormat('MMM dd, yyyy');
+        $now1 = Time::now('Europe/London')->addDays(1)->i18nFormat('MMM dd, yyyy');
+        $now2 = Time::now('Europe/London')->addDays(2)->i18nFormat('MMM dd, yyyy');
+        $now3 = Time::now('Europe/London')->addDays(3)->i18nFormat('MMM dd, yyyy');
+        $now4 = Time::now('Europe/London')->addDays(4)->i18nFormat('MMM dd, yyyy');
+        $now5 = Time::now('Europe/London')->addDays(5)->i18nFormat('MMM dd, yyyy');
+        $now6 = Time::now('Europe/London')->addDays(6)->i18nFormat('MMM dd, yyyy');
+        $week_ahead = [$now, $now1, $now2, $now3, $now4, $now5, $now6,];
+        return $week_ahead;
+    }
+    public function getAvailibility($id){
+        $bookingsTable = TableRegistry::getTableLocator()->get('Bookings');
+        $availibility = $bookingsTable->find()->where(['bike_id'=>$id]);
+        $week_ahead = $this->getWeekAhead();
+        $bookings =[];
+        foreach($availibility as $book){
+            $temp = $book->booking_start->i18nFormat('MMM dd, yyyy');
+            $bookings[] = $temp;
+        }
+        $bookings_to_view = [];
+        foreach ($week_ahead as $day) {
+            if(in_array($day,$bookings)){
+                array_push($bookings_to_view, 'BOOKED');
+            }
+            else{
+                array_push($bookings_to_view, $day);
+            }
+        }
+        return $bookings_to_view;
     }
 
     /**

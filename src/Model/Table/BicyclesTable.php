@@ -118,27 +118,45 @@ class BicyclesTable extends Table
      */
 
     public function getWeekAhead(){
-        $now = Time::now('Europe/London')->i18nFormat('MMM dd, yyyy');
-        $now1 = Time::now('Europe/London')->addDays(1)->i18nFormat('MMM dd, yyyy');
-        $now2 = Time::now('Europe/London')->addDays(2)->i18nFormat('MMM dd, yyyy');
-        $now3 = Time::now('Europe/London')->addDays(3)->i18nFormat('MMM dd, yyyy');
-        $now4 = Time::now('Europe/London')->addDays(4)->i18nFormat('MMM dd, yyyy');
-        $now5 = Time::now('Europe/London')->addDays(5)->i18nFormat('MMM dd, yyyy');
-        $now6 = Time::now('Europe/London')->addDays(6)->i18nFormat('MMM dd, yyyy');
+        $now = Time::now('Europe/London')->setTime(9, 00);
+        $now1 = Time::now('Europe/London')->addDays(1);
+        $now2 = Time::now('Europe/London')->addDays(2);
+        $now3 = Time::now('Europe/London')->addDays(3);
+        $now4 = Time::now('Europe/London')->addDays(4);
+        $now5 = Time::now('Europe/London')->addDays(5);
+        $now6 = Time::now('Europe/London')->addDays(6);
         $week_ahead = [$now, $now1, $now2, $now3, $now4, $now5, $now6,];
         return $week_ahead;
     }
+    public function getSlotsAhead(){
+        $now = Time::now('Europe/London')->setTime(9, 00);
+        $now1 = Time::now('Europe/London')->addDays(1)->setTime(9, 00);
+        $now2 = Time::now('Europe/London')->addDays(2)->setTime(9, 00);
+        $now3 = Time::now('Europe/London')->addDays(3)->setTime(9, 00);
+        $now4 = Time::now('Europe/London')->addDays(4)->setTime(9, 00);
+        $now5 = Time::now('Europe/London')->addDays(5)->setTime(9, 00);
+        $now6 = Time::now('Europe/London')->addDays(6)->setTime(9, 00);
+        $nowpm = Time::now('Europe/London')->setTime(13, 00);
+        $now1pm = Time::now('Europe/London')->addDays(1)->setTime(13, 00);
+        $now2pm = Time::now('Europe/London')->addDays(2)->setTime(13, 00);
+        $now3pm = Time::now('Europe/London')->addDays(3)->setTime(13, 00);
+        $now4pm = Time::now('Europe/London')->addDays(4)->setTime(13, 00);
+        $now5pm = Time::now('Europe/London')->addDays(5)->setTime(13, 00);
+        $now6pm = Time::now('Europe/London')->addDays(6)->setTime(13, 00);
+        $slots_ahead = [$now,$now1,$now2,$now3,$now4,$now5,$now6,$nowpm,$now1pm,$now2pm,$now3pm,$now4pm,$now5pm,$now6pm];
+        return $slots_ahead;
+    }
     public function getAvailibility($id){
+        // get bookings for the week ahead
         $bookingsTable = TableRegistry::getTableLocator()->get('Bookings');
         $availibility = $bookingsTable->find()->where(['bike_id'=>$id]);
-        $week_ahead = $this->getWeekAhead();
+        $slots_ahead = $this->getSlotsAhead();
         $bookings =[];
         foreach($availibility as $book){
-            $temp = $book->booking_start->i18nFormat('MMM dd, yyyy');
-            $bookings[] = $temp;
+            $bookings[] = $book->booking_start;
         }
         $bookings_to_view = [];
-        foreach ($week_ahead as $day) {
+        foreach ($slots_ahead as $day) {
             if(in_array($day,$bookings)){
                 array_push($bookings_to_view, 'BOOKED');
             }
@@ -148,6 +166,7 @@ class BicyclesTable extends Table
         }
         return $bookings_to_view;
     }
+
 
     /**
      * Returns a rules checker object that will be used for validating

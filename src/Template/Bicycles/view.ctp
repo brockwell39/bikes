@@ -57,18 +57,31 @@
     <h3>Availibility</h3>
     <table class="vertical-table">
         <tr>
-            <?php foreach ($week_ahead as $day): ?>
-                <th><?= h($day) ?></th>
-            <?php endforeach; ?>
+            <th>Time</th>
+            <?php for($x=0; $x<7; $x++): ?>
+            <th><?= h($slots_ahead[$x]->i18nFormat('MMM dd, yyyy')) ?></th>
+            <?php endfor; ?>
+
         </tr>
         <tr>
-            <?php foreach ($bookings_to_view as $booking): ?>
-                <?php if($booking != 'BOOKED'): ?>
-                <th> <?= $this->Form->postLink(__('Book'), ['action' => 'book',$bicycle->id, $booking], ['confirm' => __('Are you sure you want to book {0} on {1}?',$bicycle->title,$booking)]) ?> </th>
-                <?php elseif($booking == 'BOOKED'):  ?>
-                <th><?php echo $booking ?> </th>
+            <th>09:00-12:00</th>
+                <?php for($x=0; $x<7; $x++): ?>
+                <?php if($bookings_to_view[$x] != 'BOOKED'): ?>
+                <th> <?= $this->Form->postLink(__('Book'), ['controller'=>'Bookings','action' => 'book',$bicycle->id, $x], ['confirm' => __('Are you sure you want to book {0} on {1}?',$bicycle->title,$bookings_to_view[$x])]) ?> </th>
+                <?php elseif($bookings_to_view[$x] == 'BOOKED'):  ?>
+                <th><?php echo $bookings_to_view[$x] ?> </th>
                 <?php endif; ?>
-            <?php endforeach; ?>
+            <?php endfor; ?>
+        </tr>
+        <tr>
+            <th>13:00-16:00</th>
+            <?php for($x=7; $x<14; $x++): ?>
+                <?php if($bookings_to_view[$x] != 'BOOKED'): ?>
+                    <th> <?= $this->Form->postLink(__('Book'), ['controller'=>'Bookings','action' => 'book',$bicycle->id, $x], ['confirm' => __('Are you sure you want to book {0} on {1}?',$bicycle->title,$bookings_to_view[$x])]) ?> </th>
+                <?php elseif($bookings_to_view[$x] == 'BOOKED'):  ?>
+                    <th><?php echo $bookings_to_view[$x] ?> </th>
+                <?php endif; ?>
+            <?php endfor; ?>
         </tr>
     </table>
 </div>

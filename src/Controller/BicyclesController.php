@@ -25,7 +25,7 @@ class BicyclesController extends AppController
     {
         $action = $this->request->getParam('action');
         // The add and tags actions are always allowed to logged in users.
-        if (in_array($action, ['add', 'tags'])) {
+        if (in_array($action, ['add', 'tags','book'])) {
             return true;
         }
 
@@ -63,7 +63,10 @@ class BicyclesController extends AppController
         $week_ahead = $this->Bicycles->getWeekAhead();
         $this->set(compact('week_ahead'));
         $bookings_to_view = $this->Bicycles->getAvailibility($id);
+        //$test = $this->Bicycles->getAmAvailibility($id);
         $this->set(compact('bookings_to_view'));
+        $slots_ahead = $this->Bicycles->getSlotsAhead();
+        $this->set(compact('slots_ahead'));
 
 
         $bicycle = $this->Bicycles->get($id, [
@@ -96,16 +99,22 @@ class BicyclesController extends AppController
         $users = $this->Bicycles->Users->find('list', ['limit' => 200]);
         $this->set(compact('bicycle', 'users'));
     }
-    public function book($id = null,$day){
+    public function book($id = null,$bookingCode){
         $user = $this->Auth->user('id');
         $bookingsTable = TableRegistry::getTableLocator()->get('Bookings');
         $booking = new Booking;
         $booking->user_id = $user;
         $booking->bike_id = $id;
+        $bookings_to_view = $this->Bicycles->getAvailibility($id);
+        if($bookings_to_view[$bookingCode]=='BOOKED'){
+            $this->Flash->error(__('The booking could not be saved. Please, try again.'));
+            return $this->redirect(['action' => 'view',$id]);
+        }
         $booking->created = Time::now('Europe/London');
-        $date = date("Y-m-d H:i:s", strtotime($day));
-        $booking->booking_start = $date;
-        $booking->booking_end = $date;
+        $start = $bookings_to_view[$bookingCode];
+        $end = new Time($bookings_to_view[$bookingCode]);
+        $booking->booking_start = $start;
+        $booking->booking_end = $end -> addHours(3);
         $booking->status = 'BOOKED';
         //dd($booking);
         if($bookingsTable->save($booking)){

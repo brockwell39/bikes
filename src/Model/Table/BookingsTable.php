@@ -1,16 +1,19 @@
 <?php
 namespace App\Model\Table;
 
+use App\Model\Entity\Booking;
+use Cake\I18n\Time;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
+use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 
 /**
  * Bookings Model
  *
  * @property \App\Model\Table\UsersTable&\Cake\ORM\Association\BelongsTo $Users
- * @property \App\Model\Table\BikesTable&\Cake\ORM\Association\BelongsTo $Bikes
+ * @property \App\Model\Table\BicyclesTable&\Cake\ORM\Association\BelongsTo $Bicycles
  *
  * @method \App\Model\Entity\Booking get($primaryKey, $options = [])
  * @method \App\Model\Entity\Booking newEntity($data = null, array $options = [])
@@ -40,6 +43,7 @@ class BookingsTable extends Table
         $this->setPrimaryKey('id');
 
         $this->addBehavior('Timestamp');
+
 
         $this->belongsTo('Users', [
             'foreignKey' => 'user_id',
@@ -78,6 +82,31 @@ class BookingsTable extends Table
 
         return $validator;
     }
+
+    public function makeBooking($bike_id,$bookingCode,$user)
+    {
+
+        $bookingsTable = TableRegistry::getTableLocator()->get('Bookings');
+        $booking = new Booking;
+        $booking->user_id = $user;
+        $booking->bike_id = $bike_id;
+        $bookings_to_view = $this->Bicycles->getAvailibility($bike_id);
+        if ($bookings_to_view[$bookingCode] == 'BOOKED') {
+            return false;
+        }
+        $booking->created = Time::now('Europe/London');
+        $start = $bookings_to_view[$bookingCode];
+        $end = new Time($bookings_to_view[$bookingCode]);
+        $booking->booking_start = $start;
+        $booking->booking_end = $end->addHours(3);
+        $booking->status = 'BOOKED';
+        if ($bookingsTable->save($booking)) {
+            return true;
+        }
+        return false;
+    }
+
+
 
     /**
      * Returns a rules checker object that will be used for validating

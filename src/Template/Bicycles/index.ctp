@@ -8,6 +8,7 @@
     <ul class="side-nav">
         <li class="heading"><?= __('Actions') ?></li>
         <li><?= $this->Html->link(__('New Bicycle'), ['action' => 'add']) ?></li>
+        <li><?= $this->Html->link(__('My Bookings'), ['controller' => 'Bookings', 'action' => 'index']) ?></li>
         <li><?= $this->Html->link(__('Login'), ['controller' => 'Users', 'action' => 'login']) ?></li>
         <li><?= $this->Html->link(__('Logout'), ['controller' => 'Users', 'action' => 'logout']) ?></li>
     </ul>

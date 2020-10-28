@@ -118,14 +118,14 @@ class BicyclesTable extends Table
      */
 
     public function getWeekAhead(){
-        $now = Time::now('Europe/London')->setTime(9, 00);
-        $now1 = Time::now('Europe/London')->addDays(1);
-        $now2 = Time::now('Europe/London')->addDays(2);
-        $now3 = Time::now('Europe/London')->addDays(3);
-        $now4 = Time::now('Europe/London')->addDays(4);
-        $now5 = Time::now('Europe/London')->addDays(5);
-        $now6 = Time::now('Europe/London')->addDays(6);
-        $week_ahead = [$now, $now1, $now2, $now3, $now4, $now5, $now6,];
+        $now = Time::now('Europe/London')->i18nFormat('MMM dd, yyyy');
+        $now1 = Time::now('Europe/London')->addDays(1)->i18nFormat('MMM dd, yyyy');
+        $now2 = Time::now('Europe/London')->addDays(2)->i18nFormat('MMM dd, yyyy');
+        $now3 = Time::now('Europe/London')->addDays(3)->i18nFormat('MMM dd, yyyy');
+        $now4 = Time::now('Europe/London')->addDays(4)->i18nFormat('MMM dd, yyyy');
+        $now5 = Time::now('Europe/London')->addDays(5)->i18nFormat('MMM dd, yyyy');
+        $now6 = Time::now('Europe/London')->addDays(6)->i18nFormat('MMM dd, yyyy');
+        $week_ahead = [ $now=>$now, $now1=>$now1, $now2=>$now2, $now3=>$now3, $now4=>$now4, $now5=>$now5, $now6=>$now6 ];
         return $week_ahead;
     }
     public function getSlotsAhead(){
@@ -143,27 +143,38 @@ class BicyclesTable extends Table
         $now4pm = Time::now('Europe/London')->addDays(4)->setTime(13, 00);
         $now5pm = Time::now('Europe/London')->addDays(5)->setTime(13, 00);
         $now6pm = Time::now('Europe/London')->addDays(6)->setTime(13, 00);
-        $slots_ahead = [$now,$now1,$now2,$now3,$now4,$now5,$now6,$nowpm,$now1pm,$now2pm,$now3pm,$now4pm,$now5pm,$now6pm];
+        $slots_ahead = [$now,$nowpm,$now1,$now1pm,$now2,$now2pm,$now3,$now3pm,$now4,$now4pm,$now5,$now5pm,$now6,$now6pm];
         return $slots_ahead;
     }
     public function getAvailibility($id){
         // get bookings for the week ahead
+        $today_9am = Time::now('Europe/London')->setTime(9, 00);
         $bookingsTable = TableRegistry::getTableLocator()->get('Bookings');
-        $availibility = $bookingsTable->find()->where(['bike_id'=>$id]);
+        $bookings_for_bike = $bookingsTable->find()->where(['bike_id'=>$id,'booking_start >='=>$today_9am]);
         $slots_ahead = $this->getSlotsAhead();
-        $bookings =[];
-        foreach($availibility as $book){
-            $bookings[] = $book->booking_start;
+        $bookings_start_to_end=[];
+        foreach($bookings_for_bike as $booking){
+            $bookings_start_to_end[]=[$booking->booking_start,$booking->booking_end];
         }
         $bookings_to_view = [];
-        foreach ($slots_ahead as $day) {
-            if(in_array($day,$bookings)){
+        $slots_booked =[];
+        $no_of_bookings = count($bookings_start_to_end);
+        foreach ($slots_ahead as $slot) {
+         for($y = 0; $y < $no_of_bookings; $y++) {
+             if ($slot == $bookings_start_to_end[$y][0] || ($slot > $bookings_start_to_end[$y][0] && $slot < $bookings_start_to_end[$y][1])) {
+                 array_push($slots_booked, $slot);
+                }
+            }
+        }
+        foreach ($slots_ahead as $slot) {
+            if(in_array($slot,$slots_booked)){
                 array_push($bookings_to_view, 'BOOKED');
             }
             else{
-                array_push($bookings_to_view, $day);
+                array_push($bookings_to_view, $slot);
             }
         }
+
         return $bookings_to_view;
     }
 

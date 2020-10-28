@@ -23,7 +23,7 @@ class BookingsController extends AppController
     {
         $action = $this->request->getParam('action');
         // The add and tags actions are always allowed to logged in users.
-        if (in_array($action, ['add','tags','index','book'])) {
+        if (in_array($action, ['add','tags','index','book','bulkbook'])) {
             return true;
         }
 
@@ -117,8 +117,20 @@ class BookingsController extends AppController
         };
         $this->Flash->error(__('The booking could not be saved. Please, try again.'));
         return $this->redirect(['controller'=>'bicycles','action' => 'view',$bike_id]);
+    }
+
+    public function bulkbook(){
+        $user = $this->Auth->user('id');
+        $bulk_booking = $this->request->getData();
+        if($this->Bookings->makeBulkBooking($bulk_booking,$user)){
+            $this->Flash->success(__('The booking has been saved.'));
+            return $this->redirect(['controller'=>'bicycles','action' => 'view',$bulk_booking["Bike"]]);
+        };
+        $this->Flash->error(__('The booking is not available. Please, try again.'));
+        return $this->redirect(['controller'=>'bicycles','action' => 'view',$bulk_booking["Bike"]]);
 
     }
+
 
     public function cancel($id=null){
         $booking = $this->Bookings->get($id);

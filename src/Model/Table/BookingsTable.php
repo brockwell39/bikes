@@ -85,7 +85,6 @@ class BookingsTable extends Table
 
     public function makeBooking($bike_id,$bookingCode,$user)
     {
-
         $bookingsTable = TableRegistry::getTableLocator()->get('Bookings');
         $booking = new Booking;
         $booking->user_id = $user;
@@ -104,6 +103,42 @@ class BookingsTable extends Table
             return true;
         }
         return false;
+    }
+    public function makeBulkBooking($bulk_booking,$user)
+    {
+        $bookings_of_bike = $this->Bicycles->getAvailibility($bulk_booking["Bike"]);
+        $start = new Time($bulk_booking["Start_date"] . ' ' . $bulk_booking["Start_time"]);
+        $finish = new Time($bulk_booking["Finish_time"] . ' ' . $bulk_booking["Finish_date"]);
+        $interval = $start->diff($finish);
+        $slots = 0;
+        if ($interval->h == 3) {
+            $slots = $slots + 1;
+        } elseif ($interval->h == 7) {
+            $slots = $slots + 2;
+        }
+        $slots = $slots + (($interval->d) * 2);
+        if (array_search($start, $bookings_of_bike)) {
+            $array_position = array_search($start, $bookings_of_bike);
+            $booking_end = $array_position + $slots;
+                for ($array_position; $array_position < $booking_end; $array_position++) {
+                    if ($bookings_of_bike[$array_position] == 'BOOKED') {
+                        return false;
+                    }
+                    $bookingsTable = TableRegistry::getTableLocator()->get('Bookings');
+                    $booking = new Booking;
+                    $booking->user_id = $user;
+                    $booking->bike_id = $bulk_booking["Bike"];
+                    $booking->created = Time::now('Europe/London');
+                    $booking->booking_start = $start;
+                    $booking->booking_end = $finish;
+                    $booking->status = 'BOOKED';
+                    if ($bookingsTable->save($booking)) {
+                        return true;
+                    }
+                    return false;
+                }
+                return false;
+            }
     }
 
 

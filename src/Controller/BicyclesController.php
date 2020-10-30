@@ -25,7 +25,7 @@ class BicyclesController extends AppController
     {
         $action = $this->request->getParam('action');
         // The add and tags actions are always allowed to logged in users.
-        if (in_array($action, ['add', 'tags','book'])) {
+        if (in_array($action, ['add', 'tags','book','search'])) {
             return true;
         }
 
@@ -47,9 +47,22 @@ class BicyclesController extends AppController
             'contain' => ['Users'],
         ];
         $bicycles = $this->paginate($this->Bicycles);
-
         $this->set(compact('bicycles'));
     }
+    public function search()
+    {
+        $week_ahead = $this->Bicycles->getWeekAhead();
+        $this->set(compact('week_ahead'));
+        $search_results = null;
+        $search_data = $this->request->getData();
+        if($this->request->getData()){
+            $search_results = $this->Bicycles->searchAvailability($this->request->getData());
+        }
+        $this->set(compact('search_results'));
+        $this->set(compact('search_data'));
+
+    }
+
 
     /**
      * View method
@@ -62,8 +75,7 @@ class BicyclesController extends AppController
     {
         $week_ahead = $this->Bicycles->getWeekAhead();
         $this->set(compact('week_ahead'));
-        $bookings_to_view = $this->Bicycles->getAvailibility($id);
-        //$test = $this->Bicycles->getAmAvailibility($id);
+        $bookings_to_view = $this->Bicycles->getAvailability($id);
         $this->set(compact('bookings_to_view'));
         $slots_ahead = $this->Bicycles->getSlotsAhead();
         $this->set(compact('slots_ahead'));
@@ -105,7 +117,7 @@ class BicyclesController extends AppController
         $booking = new Booking;
         $booking->user_id = $user;
         $booking->bike_id = $id;
-        $bookings_to_view = $this->Bicycles->getAvailibility($id);
+        $bookings_to_view = $this->Bicycles->getAvailability($id);
         if($bookings_to_view[$bookingCode]=='BOOKED'){
             $this->Flash->error(__('The booking could not be saved. Please, try again.'));
             return $this->redirect(['action' => 'view',$id]);

@@ -146,11 +146,11 @@ class BicyclesTable extends Table
         $slots_ahead = [$now,$nowpm,$now1,$now1pm,$now2,$now2pm,$now3,$now3pm,$now4,$now4pm,$now5,$now5pm,$now6,$now6pm];
         return $slots_ahead;
     }
-    public function getAvailibility($id){
+    public function getAvailability($id){
         // get bookings for the week ahead
         $today_9am = Time::now('Europe/London')->setTime(9, 00);
         $bookingsTable = TableRegistry::getTableLocator()->get('Bookings');
-        $bookings_for_bike = $bookingsTable->find()->where(['bike_id'=>$id,'booking_start >='=>$today_9am]);
+        $bookings_for_bike = $bookingsTable->find()->where(['bike_id'=>$id,'booking_start >='=>$today_9am,'status'=>'BOOKED']);
         $slots_ahead = $this->getSlotsAhead();
         $bookings_start_to_end=[];
         foreach($bookings_for_bike as $booking){
@@ -176,6 +176,27 @@ class BicyclesTable extends Table
         }
 
         return $bookings_to_view;
+    }
+    public function searchAvailability($search){
+        $start = new Time($search["Start_date"] . ' ' . $search["Start_time"]);
+        $finish = new Time($search["Finish_time"] . ' ' . $search["Finish_date"]);
+        $bicyclesTable = TableRegistry::getTableLocator()->get('Bicycles');
+        $bookingsTable = TableRegistry::getTableLocator()->get('Bookings');
+        $allbikes = $bicyclesTable->find('all');
+        $availableBikes = [];
+        $test = [];
+        foreach($allbikes as $bike){
+            $x = $bookingsTable->find()
+                ->where(['bike_id'=>$bike->id,'booking_start' => $start,'status' => 'BOOKED']);
+            $y = $bookingsTable->find()
+                ->where(['bike_id'=>$bike->id,'booking_start >' => $start,'booking_start <' => $finish,'status' => 'BOOKED']);
+            if(!($x -> first()) && !($y -> first())){
+                $availableBikes [] = $bike;
+            }
+        }
+        //
+
+        return $availableBikes;
     }
 
 

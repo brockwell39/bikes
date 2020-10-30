@@ -50,6 +50,7 @@ class BookingsController extends AppController
 
         $this->paginate = [
             'contain' => ['Users','Bicycles'],
+            'order' => ['booking_start' => 'DESC']
         ];
         //$books = $this->Bookings->find()->where(['user_id' => $user]);
         //$this->set('bookings', $this->paginate($books));
@@ -120,6 +121,7 @@ class BookingsController extends AppController
     }
 
     public function bulkbook(){
+        //dd($this->request->getData());
         $user = $this->Auth->user('id');
         $bulk_booking = $this->request->getData();
         if($this->Bookings->makeBulkBooking($bulk_booking,$user)){

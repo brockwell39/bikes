@@ -4,7 +4,7 @@
  * @var \App\Model\Entity\Booking[]|\Cake\Collection\CollectionInterface $bookings
  */
 ?>
-<nav class="large-3 medium-4 columns" id="actions-sidebar">
+<nav class="large-2 medium-3 columns" id="actions-sidebar">
     <ul class="side-nav">
         <li class="heading"><?= __('Actions') ?></li>
         <li><?= $this->Html->link(__('New Booking'), ['action' => 'add']) ?></li>
@@ -14,13 +14,12 @@
         <li><?= $this->Html->link(__('New Bicycle'), ['controller' => 'Bicycles', 'action' => 'add']) ?></li>
     </ul>
 </nav>
-<div class="bookings index large-9 medium-8 columns content">
+<div class="bookings index large-10 medium-9 columns content">
     <h3><?= __('Bookings') ?></h3>
     <table cellpadding="0" cellspacing="0">
         <thead>
             <tr>
                 <th scope="col"><?= $this->Paginator->sort('id') ?></th>
-                <th scope="col"><?= $this->Paginator->sort('user_id') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('bike_id') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('created') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('booking_start') ?></th>

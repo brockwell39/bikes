@@ -9,6 +9,7 @@
         <li class="heading"><?= __('Actions') ?></li>
         <li><?= $this->Html->link(__('New Bicycle'), ['action' => 'add']) ?></li>
         <li><?= $this->Html->link(__('My Bookings'), ['controller' => 'Bookings', 'action' => 'index']) ?></li>
+        <li><?= $this->Html->link(__('Search'), ['action' => 'search']) ?></li>
         <li><?= $this->Html->link(__('Login'), ['controller' => 'Users', 'action' => 'login']) ?></li>
         <li><?= $this->Html->link(__('Logout'), ['controller' => 'Users', 'action' => 'logout']) ?></li>
     </ul>
@@ -22,8 +23,6 @@
                 <th scope="col"><?= $this->Paginator->sort('type') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('gender') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('gears') ?></th>
-                <th scope="col"><?= $this->Paginator->sort('photo') ?></th>
-                <th scope="col"><?= $this->Paginator->sort('dir') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('weekday_price') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('weekend_price') ?></th>
                 <th scope="col" class="actions"><?= __('Actions') ?></th>
@@ -36,8 +35,6 @@
                 <td><?= h($bicycle->type) ?></td>
                 <td><?= h($bicycle->gender) ?></td>
                 <td><?= $this->Number->format($bicycle->gears) ?></td>
-                <td><?= h($bicycle->photo) ?></td>
-                <td><?= h($bicycle->dir) ?></td>
                 <td><?= $this->Number->format($bicycle->weekday_price) ?></td>
                 <td><?= $this->Number->format($bicycle->weekend_price) ?></td>
                 <td class="actions">

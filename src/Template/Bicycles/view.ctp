@@ -4,17 +4,8 @@
  * @var \App\Model\Entity\Bicycle $bicycle
  */
 ?>
-<nav class="large-3 medium-4 columns" id="actions-sidebar">
-    <ul class="side-nav">
-        <li class="heading"><?= __('Actions') ?></li>
-        <li><?= $this->Html->link(__('Edit Bicycle'), ['action' => 'edit', $bicycle->id]) ?> </li>
-        <li><?= $this->Form->postLink(__('Delete Bicycle'), ['action' => 'delete', $bicycle->id], ['confirm' => __('Are you sure you want to delete # {0}?', $bicycle->id)]) ?> </li>
-        <li><?= $this->Html->link(__('List Bicycles'), ['action' => 'index']) ?> </li>
-        <li><?= $this->Html->link(__('New Bicycle'), ['action' => 'add']) ?> </li>
-        <li><?= $this->Html->link(__('New User'), ['controller' => 'Users', 'action' => 'add']) ?> </li>
-    </ul>
-</nav>
-<div class="bicycles view large-9 medium-8 columns content">
+
+<div class="bicycles view large-12 medium-8 columns content">
     <h3><?= h($bicycle->title) ?></h3>
     <table class="vertical-table">
         <tr>

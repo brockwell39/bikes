@@ -16,7 +16,7 @@ class UsersController extends AppController
     {
         parent::initialize();
         $this->Auth->allow(['logout','add']);
-        //$this->Auth->deny(['index']);
+        $this->Auth->deny(['index']);
     }
 
     public function logout()

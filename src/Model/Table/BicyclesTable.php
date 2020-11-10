@@ -194,9 +194,32 @@ class BicyclesTable extends Table
                 $availableBikes [] = $bike;
             }
         }
-        //
-
         return $availableBikes;
+    }
+
+    public function getAllAvailability(){
+        $bicyclesTable = TableRegistry::getTableLocator()->get('Bicycles');
+        $allbikes = $bicyclesTable->find('all');
+        $all_bikes_availibility= [];
+        foreach($allbikes as $bike) {
+            $bike_avail_for_array = [];
+            $numbers = [];
+            $bike_availability = $this->getAvailability($bike->id);
+            for($x=0; $x<13; $x+=2) {
+                $numbers [] = $x;
+                if (($bike_availability[$x] == "BOOKED") && ($bike_availability[$x+1] == "BOOKED")) {
+                    $bike_avail_for_array [] = 'B';
+                }
+                elseif (($bike_availability[$x] == "BOOKED") || ($bike_availability[$x+1] == "BOOKED") ){
+                    $bike_avail_for_array [] = 'P';
+                }
+                elseif ($bike_availability[$x] != "BOOKED" && $bike_availability[$x+1] != "BOOKED") {
+                    $bike_avail_for_array [] = 'A';
+                }
+            }
+            $all_bikes_availibility [$bike->id] = $bike_avail_for_array;
+        }
+        return $all_bikes_availibility;
     }
 
 

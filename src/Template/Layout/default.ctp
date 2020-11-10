@@ -43,11 +43,24 @@ $cakeDescription = 'CakePHP: the rapid development php framework';
         </ul>
         <div class="top-bar-section">
             <ul class="right">
-                <li><?= $this->Html->link(__('Logout'), ['controller' => 'Users','action' => 'logout']) ?></li>
             </ul>
         </div>
     </nav>
     <?= $this->Flash->render() ?>
+    <nav class="large-2 medium-4 columns" id="actions-sidebar">
+        <?php if ($this->request->getSession()->read('Auth.User.id')): ?>
+            <ul class="side-nav">
+                <li class="heading"><?= __('Actions') ?></li>
+                <?= $this->element('insidebar'); ?>
+            </ul>
+        <?php else: ?>
+            <ul class="side-nav">
+                <li class="heading"><?= __('Actions') ?></li>
+                <?= $this->element('outsidebar'); ?>
+            </ul>
+        <?php endif; ?>
+
+    </nav>
     <div class="container clearfix">
         <?= $this->fetch('content') ?>
     </div>

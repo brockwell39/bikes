@@ -66,20 +66,7 @@ class AppController extends Controller
             // If unauthorized, return them to page they were just on
             'unauthorizedRedirect' => $this->referer()
         ]);
-        // Allow the display action so our PagesController
-        // continues to work. Also enable the read only actions.
         $this->Auth->allow(['display', 'view', 'index']);
-        //$user = $this->Auth->identify();
-        //$hello =$this->Auth->user('id');
-        //dd($hello);
-        //if($user){
-        //    $test = 'logged in';
-        //}
-        //if($user == false){
-        //    $test = 'not logged in';
-        //}
-        //$this->set(compact('test'));
-        //$this->set(compact('user'));
 
     }
 

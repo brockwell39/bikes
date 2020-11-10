@@ -525,3 +525,33 @@ table td {
     vertical-align: top;
     word-break: break-all;
 }
+avail {
+    height: 10px;
+    width: 10px;
+    color: #4d8f97;
+
+}
+#rcornersA {
+    margin-right: 2px;
+    border-radius: 3px;
+    background: #73AD21;
+    padding: 2px;
+    width: 10px;
+    height: 10px;
+}
+#rcornersB {
+    margin-right: 2px;
+    border-radius: 3px;
+    background: red;
+    padding: 2px;
+    width: 10px;
+    height: 10px;
+}
+#rcornersP {
+    margin-right: 2px;
+    border-radius: 3px;
+    background: darkorange;
+    padding: 2px;
+    width: 10px;
+    height: 10px;
+}

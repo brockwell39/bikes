@@ -16,7 +16,7 @@ class BookingsController extends AppController
     {
         parent::initialize();
         // Add the 'add' action to the allowed actions list.
-        $this->Auth->allow(['add']);
+        $this->Auth->allow(['add','search']);
         $this->Auth->deny(['index','edit']);
     }
     public function isAuthorized($user)
@@ -50,26 +50,12 @@ class BookingsController extends AppController
 
         $this->paginate = [
             'contain' => ['Users','Bicycles'],
-            'order' => ['booking_start' => 'DESC']
+            'order' => ['booking_start' => 'DESC'],
+            'conditions' => ['Bookings.user_id' => $this->Auth->user('id')]
         ];
-        //$books = $this->Bookings->find()->where(['user_id' => $user]);
-        //$this->set('bookings', $this->paginate($books));
-
-        //$data = $books->toArray();
-        //dd($data);
-        //$this->Bookings->where(['id' => $id])
-        //$bookings = $this->paginate($books);
-        //$test = $this->Bookings->find()->where(['user_id' => $user]);
-        //dd($test);
         $bookings = $this->paginate($this->Bookings);
-
         $this->set(compact('bookings'));
 
-        //$query = $this->Articles->find('published');
-
-        //dd($bookings);
-
-        $this->set(compact('bookings'));
     }
 
     /**

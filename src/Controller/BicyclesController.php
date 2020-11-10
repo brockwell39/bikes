@@ -21,6 +21,13 @@ class BicyclesController extends AppController
      *
      * @return \Cake\Http\Response|null
      */
+    public function initialize()
+    {
+        parent::initialize();
+        // Add the 'add' action to the allowed actions list.
+        $this->Auth->allow(['search','index']);
+        $this->Auth->deny(['edit']);
+    }
     public function isAuthorized($user)
     {
         $action = $this->request->getParam('action');
@@ -48,6 +55,8 @@ class BicyclesController extends AppController
         ];
         $bicycles = $this->paginate($this->Bicycles);
         $this->set(compact('bicycles'));
+        $all_bikes_availiblty = $this->Bicycles->getAllAvailability();
+        $this->set(compact('all_bikes_availiblty'));
     }
     public function search()
     {

@@ -121,6 +121,8 @@ class BicyclesController extends AppController
         $this->set(compact('bicycle', 'users'));
     }
     public function book($id = null,$bookingCode){
+        $query = $bicycles->find('all')->contain(['Bookings']);
+        dd($query);
         $user = $this->Auth->user('id');
         $bookingsTable = TableRegistry::getTableLocator()->get('Bookings');
         $booking = new Booking;

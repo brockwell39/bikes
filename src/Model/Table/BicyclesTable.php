@@ -49,6 +49,11 @@ class BicyclesTable extends Table
             'foreignKey' => 'user_id',
             'joinType' => 'INNER',
         ]);
+        $this->hasMany('Bookings', [
+            'foreignKey' => 'bike_id',
+            'joinType' => 'INNER',
+        ]);
+
     }
 
     /**
@@ -146,7 +151,7 @@ class BicyclesTable extends Table
         $slots_ahead = [$now,$nowpm,$now1,$now1pm,$now2,$now2pm,$now3,$now3pm,$now4,$now4pm,$now5,$now5pm,$now6,$now6pm];
         return $slots_ahead;
     }
-    public function getAvailability($id){
+    public function getBAvailability($id){
         // get bookings for the week ahead
         $today_9am = Time::now('Europe/London')->setTime(9, 00);
         $bookingsTable = TableRegistry::getTableLocator()->get('Bookings');
@@ -177,7 +182,64 @@ class BicyclesTable extends Table
 
         return $bookings_to_view;
     }
+    public function getAvailability($id){
+        // get bookings for the week ahead
+        $today_9am = Time::now('Europe/London')->setTime(9, 00);
+        $bookingsTable = TableRegistry::getTableLocator()->get('Bookings');
+        $bookings_for_bike = $bookingsTable->find()->where(['bike_id'=>$id,'booking_start >='=>$today_9am,'status'=>'BOOKED'])->toArray();
+        $bookings_ongoing = $bookingsTable->find()->where(['bike_id'=>$id,'booking_start <'=>$today_9am,'booking_end >'=>$today_9am,'status'=>'BOOKED'])->toArray();
+        $bookings_for_bike = array_merge($bookings_for_bike, $bookings_ongoing);
+        $slots_ahead = $this->getSlotsAhead();
+        $bookings_start_to_end=[];
+        foreach($bookings_for_bike as $booking){
+            $bookings_start_to_end[]=[$booking->booking_start,$booking->booking_end];
+        }
+        $bookings_to_view = [];
+        $slots_booked =[];
+        $no_of_bookings = count($bookings_start_to_end);
+        foreach ($slots_ahead as $slot) {
+            for($y = 0; $y < $no_of_bookings; $y++) {
+                if ($slot == $bookings_start_to_end[$y][0] || ($slot > $bookings_start_to_end[$y][0] && $slot < $bookings_start_to_end[$y][1])) {
+                    array_push($slots_booked, $slot);
+                }
+            }
+        }
+        foreach ($slots_ahead as $slot) {
+            if(in_array($slot,$slots_booked)){
+                array_push($bookings_to_view, 'BOOKED');
+            }
+            else{
+                array_push($bookings_to_view, $slot);
+            }
+        }
+
+        return $bookings_to_view;
+    }
+
     public function searchAvailability($search){
+        $start = new Time($search["Start_date"] . ' ' . $search["Start_time"]);
+        $finish = new Time($search["Finish_time"] . ' ' . $search["Finish_date"]);
+        $bookingsTable = TableRegistry::getTableLocator()->get('Bookings');
+        $bicyclesTable = TableRegistry::getTableLocator()->get('Bicycles');
+        $allbikes = $bicyclesTable->find('all')->toArray();
+        $bookings_overlap = $bookingsTable->find('all')->where(['booking_start <' => $start,'booking_end >' => $finish,'status' => 'BOOKED'])->contain(['Bicycles'])->toArray();
+        $start_within_bookings = $bookingsTable->find('all')->where(['booking_start >=' => $start, 'booking_end >' => $start,'status' => 'BOOKED'])->contain(['Bicycles'])->toArray();
+        $end_within_bookings = $bookingsTable->find('all')->where(['booking_end >' => $start, 'booking_end <=' => $finish,'status' => 'BOOKED'])->contain(['Bicycles'])->toArray();
+        $results = array_merge($bookings_overlap,$start_within_bookings,$end_within_bookings);
+        $booked_bikes=[];
+        foreach($results as $booked_bike){
+            $booked_bike->bicycle;
+            if (!in_array($booked_bike->bicycle, $booked_bikes))
+            {
+                $booked_bikes[] = $booked_bike->bicycle;
+            }
+        }
+        $availableBikes = array_diff($allbikes, $booked_bikes);
+        return $availableBikes;
+    }
+
+
+    public function searchBAvailability($search){
         $start = new Time($search["Start_date"] . ' ' . $search["Start_time"]);
         $finish = new Time($search["Finish_time"] . ' ' . $search["Finish_date"]);
         $bicyclesTable = TableRegistry::getTableLocator()->get('Bicycles');
@@ -194,6 +256,7 @@ class BicyclesTable extends Table
                 $availableBikes [] = $bike;
             }
         }
+        //dd($availableBikes);
         return $availableBikes;
     }
 

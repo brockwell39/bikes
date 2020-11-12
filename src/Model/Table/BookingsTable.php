@@ -89,6 +89,7 @@ class BookingsTable extends Table
         $booking = new Booking;
         $booking->user_id = $user;
         $booking->bike_id = $bike_id;
+        //$bookings_to_view = $this->Bicycles->getbAvailability();
         $bookings_to_view = $this->Bicycles->getAvailability($bike_id);
         if ($bookings_to_view[$bookingCode] == 'BOOKED') {
             return false;

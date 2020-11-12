@@ -21,7 +21,6 @@
     echo $this->Form->end(); ?>
 </div>
 <div class="bicycles form large-9 medium-8 columns content">
-    <table>
         <?php if (isset($search_results)):?>
             <?php if($search_results == []): ?>
             <?php if (isset($search_data)): ?>
@@ -65,5 +64,4 @@
                 </table>
             <?php endif; ?>
         <?php endif; ?>
-    </table>
 </div>

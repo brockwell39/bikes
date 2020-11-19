@@ -127,8 +127,9 @@ class BookingsController extends AppController
     public function cancel($id=null){
         $booking = $this->Bookings->get($id);
         $booking->status='CANCELLED';
+        $invoicesTable = TableRegistry::getTableLocator()->get('Invoices');
         if($this->Bookings->save($booking)){
-            if($this->Bookings->cancelInvoice($id)){
+            if($invoicesTable->cancelInvoice($id)){
                 $this->Flash->success(__('The booking has been cancelled'));
                 return $this->redirect(['action'=>'view',$id]);
             }

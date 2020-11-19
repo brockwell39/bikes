@@ -4,6 +4,7 @@ namespace App\Model\Table;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
+use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 
 /**
@@ -37,6 +38,17 @@ class InvoicesTable extends Table
             'foreignKey' => 'id',
             'joinType' => 'INNER',
         ]);
+    }
+
+    public function cancelInvoice($id){
+        $invoicesTable = TableRegistry::getTableLocator()->get('Invoices');
+        $invoice = $invoicesTable->get($id);
+        $invoice->status='CANCELLED';
+        if($invoicesTable->save($invoice)){
+            return true;
+        }
+        return false;
+
     }
 
     /**

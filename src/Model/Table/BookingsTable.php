@@ -133,17 +133,7 @@ class BookingsTable extends Table
         return false;
 
     }
-    public function cancelInvoice($id){
-        $invoicesTable = TableRegistry::getTableLocator()->get('Invoices');
-        $bookingsTable = TableRegistry::getTableLocator()->get('Bookings');
-        $invoice = $invoicesTable->get($id);
-        $invoice->status='CANCELLED';
-        if($invoicesTable->save($invoice)){
-            return true;
-        }
-        return false;
 
-    }
 
     public function makeBooking($bike_id,$bookingCode,$user)
     {

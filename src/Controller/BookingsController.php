@@ -2,6 +2,10 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use App\Model\Entity\Invoice;
+use App\Model\Table\InvoicesTable;
+use Cake\ORM\TableRegistry;
+use Cake\ORM\Table;
 
 /**
  * Bookings Controller
@@ -17,7 +21,7 @@ class BookingsController extends AppController
         parent::initialize();
         // Add the 'add' action to the allowed actions list.
         $this->Auth->allow(['add','search']);
-        $this->Auth->deny(['index','edit']);
+        $this->Auth->deny(['index','edit','view']);
     }
     public function isAuthorized($user)
     {
@@ -113,7 +117,7 @@ class BookingsController extends AppController
         if($this->Bookings->makeBulkBooking($bulk_booking,$user)){
             $this->Flash->success(__('The booking has been saved.'));
             return $this->redirect(['controller'=>'bicycles','action' => 'view',$bulk_booking["Bike"]]);
-        };
+        }
         $this->Flash->error(__('The booking is not available. Please, try again.'));
         return $this->redirect(['controller'=>'bicycles','action' => 'view',$bulk_booking["Bike"]]);
 
@@ -124,8 +128,11 @@ class BookingsController extends AppController
         $booking = $this->Bookings->get($id);
         $booking->status='CANCELLED';
         if($this->Bookings->save($booking)){
-            $this->Flash->success(__('The booking has been cancelled'));
-            return $this->redirect(['action'=>'view',$id]);
+            if($this->Bookings->cancelInvoice($id)){
+                $this->Flash->success(__('The booking has been cancelled'));
+                return $this->redirect(['action'=>'view',$id]);
+            }
+            return false;
         }
         $this->Flash->error(__('The booking could not be saved. Please, try again.'));
         return $this->redirect(['action' => 'view',$id]);

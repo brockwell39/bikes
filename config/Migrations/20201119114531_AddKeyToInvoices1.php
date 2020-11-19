@@ -13,6 +13,16 @@ class AddKeyToInvoices1 extends AbstractMigration
     public function change()
     {
         $table = $this->table('invoices1');
-        $table->update();
+        $this->table('invoices1')
+            ->addForeignKey(
+                'id',
+                'bookings',
+                'id',
+                [
+                    'update' => 'NO_ACTION',
+                    'delete' => 'NO_ACTION'
+                ]
+            );
+            $table->update();
     }
 }

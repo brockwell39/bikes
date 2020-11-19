@@ -92,19 +92,6 @@ class BicyclesTable extends Table
             ->notEmptyString('gears');
 
 
-
-       $validator
-            ->scalar('photo')
-            ->maxLength('photo', 255)
-            ->requirePresence('photo', 'create')
-            ->notEmptyString('photo');
-
-       $validator
-            ->scalar('dir')
-            ->maxLength('dir', 255)
-            ->requirePresence('dir', 'create')
-            ->notEmptyString('dir');
-
        $validator
             ->integer('weekday_price')
             ->requirePresence('weekday_price', 'create')
@@ -114,6 +101,11 @@ class BicyclesTable extends Table
             ->integer('weekend_price')
             ->requirePresence('weekend_price', 'create')
             ->notEmptyString('weekend_price');
+
+        $validator
+            ->integer('deposit')
+            ->requirePresence('deposit', 'create')
+            ->notEmptyString('deposit');
 
         return $validator;
     }
@@ -212,7 +204,6 @@ class BicyclesTable extends Table
                 array_push($bookings_to_view, $slot);
             }
         }
-
         return $bookings_to_view;
     }
 

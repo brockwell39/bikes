@@ -16,6 +16,7 @@
                 <th scope="col"><?= $this->Paginator->sort('gears') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('weekday_price') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('weekend_price') ?></th>
+                <th scope="col"><?= $this->Paginator->sort('deposit') ?></th>
                 <th style="color:#1798A5" scope="col"><?= ('Availibility') ?></th>
                 <th style="color:#1798A5" scope="col" class="actions"><?= __('Actions') ?></th>
             </tr>
@@ -29,6 +30,7 @@
                 <td><?= $this->Number->format($bicycle->gears) ?></td>
                 <td><?= $this->Number->format($bicycle->weekday_price) ?></td>
                 <td><?= $this->Number->format($bicycle->weekend_price) ?></td>
+                <td><?= $this->Number->format($bicycle->deposit) ?></td>
                 <td><?php foreach ($all_bikes_availiblty[$bicycle->id] as $letter): ?>
                         <?php if($letter == 'A'): ?>
                             <tag id="rcornersA"></tag>

@@ -9,8 +9,6 @@ use Cake\Validation\Validator;
 /**
  * Invoices Model
  *
- * @property \App\Model\Table\BookingsTable&\Cake\ORM\Association\BelongsTo $Bookings
- *
  * @method \App\Model\Entity\Invoice get($primaryKey, $options = [])
  * @method \App\Model\Entity\Invoice newEntity($data = null, array $options = [])
  * @method \App\Model\Entity\Invoice[] newEntities(array $data, array $options = [])
@@ -35,9 +33,8 @@ class InvoicesTable extends Table
         $this->setTable('invoices');
         $this->setDisplayField('id');
         $this->setPrimaryKey('id');
-
         $this->belongsTo('Bookings', [
-            'foreignKey' => 'booking_id',
+            'foreignKey' => 'id',
             'joinType' => 'INNER',
         ]);
     }
@@ -104,19 +101,5 @@ class InvoicesTable extends Table
             ->notEmptyString('dispute_status');
 
         return $validator;
-    }
-
-    /**
-     * Returns a rules checker object that will be used for validating
-     * application integrity.
-     *
-     * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
-     * @return \Cake\ORM\RulesChecker
-     */
-    public function buildRules(RulesChecker $rules)
-    {
-        $rules->add($rules->existsIn(['booking_id'], 'Bookings'));
-
-        return $rules;
     }
 }

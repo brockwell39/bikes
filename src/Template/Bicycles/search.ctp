@@ -5,7 +5,7 @@
  */
 ?>
 
-<div class="bicycles form large-9 medium-8 columns content">
+<div class="bicycles form large-11 medium-8 columns content">
         <h3><?= __('Search') ?></h3>
     <?= $this->Form->create(null,['url' => ['controller' => 'Bicycles','action' => 'search']]) ?>
     <?php
@@ -19,8 +19,9 @@
     echo $this->Form->control('Finish time', ['type' => 'select', 'options' => $finish_times, 'label' => __('Finish time')]);
     echo $this->Form->button(__('Submit'));
     echo $this->Form->end(); ?>
-</div>
-<div class="bicycles form large-9 medium-8 columns content">
+<br>
+<br>
+
         <?php if (isset($search_results)):?>
             <?php if($search_results == []): ?>
             <?php if (isset($search_data)): ?>

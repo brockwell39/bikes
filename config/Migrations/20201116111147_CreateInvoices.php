@@ -68,6 +68,20 @@ class CreateInvoices extends AbstractMigration
             'limit' => 255,
             'null' => false,
         ]);
+
         $table->create();
+
+        $this->table('invoices')
+            ->addForeignKey(
+                'invoice_id',
+                'bookings',
+                'id',
+                [
+                    'update' => 'NO_ACTION',
+                    'delete' => 'NO_ACTION'
+                ]
+            )
+            ->update();
+
     }
 }

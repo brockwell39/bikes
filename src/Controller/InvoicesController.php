@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\ORM\TableRegistry;
 
 /**
  * Invoices Controller
@@ -12,6 +13,33 @@ use App\Controller\AppController;
  */
 class InvoicesController extends AppController
 {
+    public function initialize()
+    {
+        parent::initialize();
+        // Add the 'add' action to the allowed actions list.
+        //$this->Auth->allow(['add','search']);
+        $this->Auth->deny(['index','edit','view']);
+    }
+    public function isAuthorized($user)
+    {
+        $action = $this->request->getParam('action');
+        // The add and tags actions are always allowed to logged in users.
+        if (in_array($action, ['add','tags','index','book','bulkbook'])) {
+            return true;
+        }
+
+        // All other actions require a slug.
+        $slug = $this->request->getParam('pass.0');
+        //dd($slug);
+        if (!$slug) {
+            return false;
+        }
+        // Check that the invoice belongs to the current user.
+        $bookingsTable = TableRegistry::getTableLocator()->get('Bookings');
+        $booking = $bookingsTable->get($slug);
+
+        return $booking->user_id === $user['id'];
+    }
     /**
      * Index method
      *
@@ -21,6 +49,8 @@ class InvoicesController extends AppController
     {
         $this->paginate = [
             'contain' => ['Bookings'],
+            'conditions' => ['Bookings.user_id' => $this->Auth->user('id')]
+
         ];
         $invoices = $this->paginate($this->Invoices);
 
@@ -38,6 +68,7 @@ class InvoicesController extends AppController
     {
         $invoice = $this->Invoices->get($id, [
             'contain' => ['Bookings'],
+            //'conditions' => ['Bookings.user_id' => $this->Auth->user('id')]
         ]);
 
         $this->set('invoice', $invoice);

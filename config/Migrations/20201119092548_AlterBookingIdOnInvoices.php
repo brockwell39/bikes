@@ -13,6 +13,8 @@ class AlterBookingIdOnInvoices extends AbstractMigration
     public function change()
     {
         $table = $this->table('invoices');
+        $table->removeColumn('id');
         $table->update();
     }
 }
+

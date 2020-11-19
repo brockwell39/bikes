@@ -7,7 +7,6 @@ use Cake\ORM\Entity;
  * Invoice Entity
  *
  * @property int $id
- * @property int $booking_id
  * @property string $status
  * @property int $weekday_amount
  * @property string $weekday_quantity
@@ -31,8 +30,11 @@ class Invoice extends Entity
      *
      * @var array
      */
+    protected function _getInvoiceTotal()
+    {
+        return ($this->weekday_quantity * $this->weekday_amount)+($this->weekend_quantity * $this->weekend_amount);
+    }
     protected $_accessible = [
-        'booking_id' => true,
         'status' => true,
         'weekday_amount' => true,
         'weekday_quantity' => true,

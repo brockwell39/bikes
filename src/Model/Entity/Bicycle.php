@@ -45,5 +45,6 @@ class Bicycle extends Entity
         'created' => true,
         'modified' => true,
         'user' => true,
+        'deposit' => true,
     ];
 }

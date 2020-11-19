@@ -17,7 +17,6 @@
     <fieldset>
         <legend><?= __('Add Invoice') ?></legend>
         <?php
-            echo $this->Form->control('booking_id', ['options' => $bookings]);
             echo $this->Form->control('status');
             echo $this->Form->control('weekday_amount');
             echo $this->Form->control('weekday_quantity');

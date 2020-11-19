@@ -2,12 +2,14 @@
 namespace App\Model\Table;
 
 use App\Model\Entity\Booking;
+use App\Model\Entity\Invoice;
 use Cake\I18n\Time;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use Cake\Chronos\Chronos;
 
 /**
  * Bookings Model
@@ -53,6 +55,11 @@ class BookingsTable extends Table
             'foreignKey' => 'bike_id',
             'joinType' => 'INNER',
         ]);
+        $this->hasOne('Invoices', [
+            'foreignKey' => 'id',
+            'joinType' => 'INNER',
+        ]);
+
     }
 
     /**
@@ -82,6 +89,61 @@ class BookingsTable extends Table
 
         return $validator;
     }
+    public function createInvoice($booking_id){
+        $bookingsTable = TableRegistry::getTableLocator()->get('Bookings');
+        $invoiceTable = TableRegistry::getTableLocator()->get('Invoices');
+        $booking = $bookingsTable->get($booking_id,['contain'=>'Bicycles']);
+        $booking_length = $this->getSlots($booking->booking_start,$booking->booking_end);
+        $invoice = new Invoice;
+        $invoice->id = $booking_id;
+        $invoice->status = 'BOOKED';
+        $invoice->weekday_amount = $booking->bicycle->weekday_price;
+        $invoice->weekend_amount = $booking->bicycle->weekend_price;
+        $booking->booking_start;
+        $time = new Time($booking->booking_start);
+        $weekday_count = 0;
+        $weekend_count = 0;
+        //Works out how many weekend and weekday booking slots are taken by booking
+        for($x = 0; $x < $booking_length; $x++) {
+            $day = new Time($time);
+            $am_pm = new Time($time);
+            $day = $day->format('D');
+            $am_pm = $am_pm->format('A');
+            if ($day == 'Sat' || $day == 'Sun') {
+                $weekend_count += 1;
+            } else {
+                $weekday_count += 1;
+            }
+            if($am_pm == 'AM'){
+                $time->modify('+4 hours');
+            }
+            else{
+                $time->modify('+20 hours');
+            }
+        }
+        $invoice->deposit = $booking->bicycle->deposit;
+        $invoice->weekday_quantity = $weekday_count;
+        $invoice->weekend_quantity = $weekend_count;
+        $invoice->deposit_status = 'UNPAID';
+        $invoice->disputed_amount = 0;
+        $invoice->dispute_status = 'NONE';
+        if ($invoiceTable->save($invoice)) {
+            return true;
+        }
+        return false;
+
+    }
+    public function cancelInvoice($id){
+        $invoicesTable = TableRegistry::getTableLocator()->get('Invoices');
+        $bookingsTable = TableRegistry::getTableLocator()->get('Bookings');
+        $invoice = $invoicesTable->get($id);
+        $invoice->status='CANCELLED';
+        if($invoicesTable->save($invoice)){
+            return true;
+        }
+        return false;
+
+    }
 
     public function makeBooking($bike_id,$bookingCode,$user)
     {
@@ -101,15 +163,16 @@ class BookingsTable extends Table
         $booking->booking_end = $end->addHours(3);
         $booking->status = 'BOOKED';
         if ($bookingsTable->save($booking)) {
-            return true;
+            if($this->createInvoice($booking->id)){
+                return true;
+            }
+            return false;
         }
         return false;
     }
-    public function makeBulkBooking($bulk_booking,$user)
-    {
-        $bookings_of_bike = $this->Bicycles->getAvailability($bulk_booking["Bike"]);
-        $start = new Time($bulk_booking["Start_date"] . ' ' . $bulk_booking["Start_time"]);
-        $finish = new Time($bulk_booking["Finish_time"] . ' ' . $bulk_booking["Finish_date"]);
+
+
+    public function getSlots($start,$finish){
         $interval = $start->diff($finish);
         $slots = 0;
         if ($interval->h == 3) {
@@ -118,8 +181,20 @@ class BookingsTable extends Table
             $slots =+ 2;
         }
         $slots = $slots + (($interval->d) * 2);
+        return $slots;
+    }
+
+    public function makeBulkBooking($bulk_booking,$user)
+    {
+        $bookings_of_bike = $this->Bicycles->getAvailability($bulk_booking["Bike"]);
+        $start = new Time($bulk_booking["Start_date"] . ' ' . $bulk_booking["Start_time"]);
+        $finish = new Time($bulk_booking["Finish_time"] . ' ' . $bulk_booking["Finish_date"]);
+        if($finish < $start){
+            return false;
+        }
+        $slots = $this->getSlots($start,$finish);
         $array_position = array_search($start, $bookings_of_bike);
-        if ($array_position >= 0) {
+        if ($array_position !== false) {
             $booking_end = $array_position + $slots;
                 for ($array_position; $array_position < $booking_end; $array_position++) {
                     if ($bookings_of_bike[$array_position] == 'BOOKED') {
@@ -134,13 +209,16 @@ class BookingsTable extends Table
                     $booking->booking_end = $finish;
                     $booking->status = 'BOOKED';
                     if ($bookingsTable->save($booking)) {
-                        return true;
+                        if($this->createInvoice($booking->id)){
+                            return true;
+                        }
                     }
                     return false;
                 }
                 return false;
             }
     }
+
 
 
 

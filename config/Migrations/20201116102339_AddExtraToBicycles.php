@@ -15,7 +15,7 @@ class AddExtraToBicycles extends AbstractMigration
         $table = $this->table('bicycles');
         $table->addColumn('deposit', 'integer', [
             'default' => null,
-            'limit' => 11,
+            'limit' => 5,
             'null' => false,
         ]);
         $table->update();

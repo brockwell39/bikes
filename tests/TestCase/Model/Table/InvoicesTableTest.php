@@ -62,6 +62,16 @@ class InvoicesTableTest extends TestCase
     }
 
     /**
+     * Test createInvoice method
+     *
+     * @return void
+     */
+    public function testCreateInvoice()
+    {
+        $this->markTestIncomplete('Not implemented yet.');
+    }
+
+    /**
      * Test validationDefault method
      *
      * @return void

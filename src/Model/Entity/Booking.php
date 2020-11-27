@@ -37,5 +37,6 @@ class Booking extends Entity
         'status' => true,
         'user' => true,
         'bike' => true,
+        'owner_id' => true,
     ];
 }

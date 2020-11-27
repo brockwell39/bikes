@@ -41,15 +41,30 @@ class InvoicesTable extends Table
     }
 
     public function cancelInvoice($id){
-        $invoicesTable = TableRegistry::getTableLocator()->get('Invoices');
-        $invoice = $invoicesTable->get($id);
+        $invoice = $this->get($id);
         $invoice->status='CANCELLED';
-        if($invoicesTable->save($invoice)){
+        if($this->save($invoice)){
             return true;
         }
         return false;
-
     }
+
+    public function returnDeposit($booking){
+        if($booking->invoice->deposit_status == 'RETURNED'){
+            return false;
+        }
+       $booking->invoice->deposit_status = 'RETURNED';
+       $transactionsTable = TableRegistry::getTableLocator()->get('transactions');
+       $bookingsTable = TableRegistry::getTableLocator()->get('bookings');
+       $booking->setDirty('invoice');
+       $code = 'D';
+       if($bookingsTable->save($booking)){
+           $transactionsTable->pay1($booking,$code);
+           return true;
+       }
+       return false;
+    }
+
 
     /**
      * Default validation rules.

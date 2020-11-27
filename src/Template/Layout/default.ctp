@@ -50,7 +50,6 @@ $cakeDescription = 'CakePHP: the rapid development php framework';
     <nav class="large-2 medium-4 columns" id="actions-sidebar">
         <?php if ($this->request->getSession()->read('Auth.User.id')): ?>
             <ul class="side-nav">
-                <li class="heading"><?= __('Actions') ?></li>
                 <?= $this->element('insidebar'); ?>
             </ul>
         <?php else: ?>

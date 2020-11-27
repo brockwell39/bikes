@@ -1,7 +1,7 @@
 <?php
 use Migrations\AbstractMigration;
 
-class AddExtraToBicycles extends AbstractMigration
+class AlterTransactions2 extends AbstractMigration
 {
     /**
      * Change Method.
@@ -12,13 +12,17 @@ class AddExtraToBicycles extends AbstractMigration
      */
     public function change()
     {
-        $table = $this->table('bicycles');
-        $table->addColumn('deposit', 'integer', [
+        $table = $this->table('transactions');
+        $table->changeColumn('debit', 'integer', [
             'default' => null,
-            'limit' => 5,
+            'limit' => 11,
+            'null' => false,
+        ]);
+        $table->changeColumn('credit', 'integer', [
+            'default' => null,
+            'limit' => 11,
             'null' => false,
         ]);
         $table->update();
     }
 }
-

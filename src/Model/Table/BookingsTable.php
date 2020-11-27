@@ -92,7 +92,7 @@ class BookingsTable extends Table
     public function createInvoice($booking_id){
         $bookingsTable = TableRegistry::getTableLocator()->get('Bookings');
         $invoiceTable = TableRegistry::getTableLocator()->get('Invoices');
-        $booking = $bookingsTable->get($booking_id,['contain'=>'Bicycles']);
+        $booking = $this->get($booking_id,['contain'=>'Bicycles']);
         $booking_length = $this->getSlots($booking->booking_start,$booking->booking_end);
         $invoice = new Invoice;
         $invoice->id = $booking_id;
@@ -137,11 +137,10 @@ class BookingsTable extends Table
 
     public function makeBooking($bike_id,$bookingCode,$user)
     {
-        $bookingsTable = TableRegistry::getTableLocator()->get('Bookings');
+        $bicycle = $this->Bicycles->get($bike_id);
         $booking = new Booking;
         $booking->user_id = $user;
         $booking->bike_id = $bike_id;
-        //$bookings_to_view = $this->Bicycles->getbAvailability();
         $bookings_to_view = $this->Bicycles->getAvailability($bike_id);
         if ($bookings_to_view[$bookingCode] == 'BOOKED') {
             return false;
@@ -152,7 +151,8 @@ class BookingsTable extends Table
         $booking->booking_start = $start;
         $booking->booking_end = $end->addHours(3);
         $booking->status = 'BOOKED';
-        if ($bookingsTable->save($booking)) {
+        $booking->owner_id = $bicycle->user_id;
+        if ($this->save($booking)) {
             if($this->createInvoice($booking->id)){
                 return true;
             }
@@ -176,6 +176,7 @@ class BookingsTable extends Table
 
     public function makeBulkBooking($bulk_booking,$user)
     {
+        $bicycle = $this->Bicycles->get($bulk_booking["Bike"]);
         $bookings_of_bike = $this->Bicycles->getAvailability($bulk_booking["Bike"]);
         $start = new Time($bulk_booking["Start_date"] . ' ' . $bulk_booking["Start_time"]);
         $finish = new Time($bulk_booking["Finish_time"] . ' ' . $bulk_booking["Finish_date"]);
@@ -190,7 +191,6 @@ class BookingsTable extends Table
                     if ($bookings_of_bike[$array_position] == 'BOOKED') {
                         return false;
                     }
-                    $bookingsTable = TableRegistry::getTableLocator()->get('Bookings');
                     $booking = new Booking;
                     $booking->user_id = $user;
                     $booking->bike_id = $bulk_booking["Bike"];
@@ -198,7 +198,8 @@ class BookingsTable extends Table
                     $booking->booking_start = $start;
                     $booking->booking_end = $finish;
                     $booking->status = 'BOOKED';
-                    if ($bookingsTable->save($booking)) {
+                    $booking->owner_id = $bicycle->user_id;
+                    if ($this->save($booking)) {
                         if($this->createInvoice($booking->id)){
                             return true;
                         }

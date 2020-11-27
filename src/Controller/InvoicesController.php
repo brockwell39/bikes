@@ -24,7 +24,7 @@ class InvoicesController extends AppController
     {
         $action = $this->request->getParam('action');
         // The add and tags actions are always allowed to logged in users.
-        if (in_array($action, ['add','tags','index','book','bulkbook'])) {
+        if (in_array($action, ['add','tags','index','book','deposits'])) {
             return true;
         }
 
@@ -45,16 +45,24 @@ class InvoicesController extends AppController
      *
      * @return \Cake\Http\Response|null
      */
+
     public function index()
     {
         $this->paginate = [
-            'contain' => ['Bookings'],
-            'conditions' => ['Bookings.user_id' => $this->Auth->user('id')]
-
+           'contain' => ['Bookings'],
+           'conditions' => ['Bookings.user_id' => $this->Auth->user('id')]
         ];
-        $invoices = $this->paginate($this->Invoices);
 
-        $this->set(compact('invoices'));
+        $bookedInvoices = $this->paginate(
+            $this->Invoices->find('all')->where(['Invoices.status'=>'BOOKED'])
+        );
+        $paidInvoices = $this->paginate(
+            $this->Invoices->find('all')->where(['Invoices.status'=>'PAID'])
+        );
+
+        $transactionsTable = TableRegistry::getTableLocator()->get('Transactions');
+        $balance = $transactionsTable->getBalance($this->Auth->user('id'));
+        $this->set(compact('bookedInvoices','balance','paidInvoices'));
     }
 
     /**
@@ -64,6 +72,38 @@ class InvoicesController extends AppController
      * @return \Cake\Http\Response|null
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
+    public function deposits($id = null)
+    {
+        $this->paginate = [
+        'contain' => ['Bookings'],
+        'conditions' => ['Bookings.user_id' => $this->Auth->user('id')]
+    ];
+
+        $bookedInvoices = $this->paginate(
+            $this->Invoices->find('all')->where(['Invoices.status'=>'BOOKED'])
+        );
+        $paidInvoices = $this->paginate(
+            $this->Invoices->find('all')->where(['Invoices.status'=>'PAID'])
+        );
+
+        $transactionsTable = TableRegistry::getTableLocator()->get('Transactions');
+        $balance = $transactionsTable->getBalance($this->Auth->user('id'));
+        $this->set(compact('bookedInvoices','balance','paidInvoices'));
+    }
+
+    public function returnDeposit($booking_id=null)
+    {
+        $bookingsTable = TableRegistry::getTableLocator()->get('Bookings');
+        $booking = $bookingsTable->get($booking_id,['contain' => ['Invoices']]);
+        if($this->Invoices->returnDeposit($booking)){
+            $this->Flash->success(__('The deposit has been returned.'));
+            return $this->redirect(['action' => 'deposits']);
+       }
+        $this->Flash->success(__('The deposit has already been returned.'));
+        return $this->redirect(['action' => 'deposits']);
+    }
+
+
     public function view($id = null)
     {
         $invoice = $this->Invoices->get($id, [
@@ -86,7 +126,6 @@ class InvoicesController extends AppController
             $invoice = $this->Invoices->patchEntity($invoice, $this->request->getData());
             if ($this->Invoices->save($invoice)) {
                 $this->Flash->success(__('The invoice has been saved.'));
-
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('The invoice could not be saved. Please, try again.'));

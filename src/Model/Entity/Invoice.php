@@ -30,9 +30,13 @@ class Invoice extends Entity
      *
      * @var array
      */
-    protected function _getInvoiceTotal()
+    protected function _getRentalTotal()
     {
         return ($this->weekday_quantity * $this->weekday_amount)+($this->weekend_quantity * $this->weekend_amount);
+    }
+    protected function _getInvoiceTotal()
+    {
+        return ($this->weekday_quantity * $this->weekday_amount)+($this->weekend_quantity * $this->weekend_amount)+$this->deposit;
     }
     protected $_accessible = [
         'status' => true,
